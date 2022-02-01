@@ -23,11 +23,37 @@ from typing import Tuple
 
 from pip._internal.exceptions import UnsupportedWheel
 from pip._internal.locations import get_scheme
-from pip._internal.req.req_install import _get_dist
 from pip._internal.utils.virtualenv import virtualenv_no_global
+from pip._vendor import pkg_resources
 from pip._vendor.pkg_resources import Distribution
 
 __all__ = ["get_current_scheme", "get_dist_meta", "wheel_root_is_purelib"]
+
+
+def _get_dist(metadata_directory: str) -> Distribution:
+    """Return a pkg_resources.Distribution for the provided
+    metadata directory.
+    """
+    dist_dir = metadata_directory.rstrip(os.sep)
+
+    # Build a PathMetadata object, from path to metadata. :wink:
+    base_dir, dist_dir_name = os.path.split(dist_dir)
+    metadata = pkg_resources.PathMetadata(base_dir, dist_dir)
+
+    # Determine the correct Distribution object type.
+    if dist_dir.endswith(".egg-info"):
+        dist_cls = pkg_resources.Distribution
+        dist_name = os.path.splitext(dist_dir_name)[0]
+    else:
+        assert dist_dir.endswith(".dist-info")
+        dist_cls = pkg_resources.DistInfoDistribution
+        dist_name = os.path.splitext(dist_dir_name)[0].split("-")[0]
+
+    return dist_cls(
+        base_dir,
+        project_name=dist_name,
+        metadata=metadata,
+    )
 
 
 def get_current_scheme(dist_info_dir, dist_name, wheel_meta):
