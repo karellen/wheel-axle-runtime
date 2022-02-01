@@ -28,7 +28,7 @@ use_plugin("copy_resources")
 use_plugin("filter_resources")
 
 name = "wheel-axle-runtime"
-version = "0.0.2"
+version = "0.0.3.dev"
 
 summary = "Axle Runtime is the runtime part of the Python Wheel enhancement library"
 authors = [Author("Karellen, Inc.", "supervisor@karellen.co")]
