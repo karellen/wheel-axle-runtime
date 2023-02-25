@@ -1,7 +1,7 @@
 # Axle-Runtime - Python Wheel enhancement library
 
-[![Gitter](https://img.shields.io/gitter/room/karellen/Lobby?logo=gitter)](https://gitter.im/karellen/Lobby)
-[![Build Status](https://img.shields.io/github/workflow/status/karellen/wheel-axle-runtime/wheel-axle-runtime/master)](https://github.com/karellen/wheel-axle-runtime/actions/workflows/build.yml)
+[![Gitter](https://img.shields.io/gitter/room/karellen/Lobby?logo=gitter)](https://app.gitter.im/#/room/#karellen_Lobby:gitter.im)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/karellen/wheel-axle-runtime/build.yml?branch=master)](https://github.com/karellen/wheel-axle-runtime/actions/workflows/build.yml)
 [![Coverage Status](https://img.shields.io/coveralls/github/karellen/wheel-axle-runtime/master?logo=coveralls)](https://coveralls.io/r/karellen/wheel-axle-runtime?branch=master)
 
 [![PyBuilder Version](https://img.shields.io/pypi/v/wheel-axle-runtime?logo=pypi)](https://pypi.org/project/wheel-axle-runtime/)

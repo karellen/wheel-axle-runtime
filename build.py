@@ -15,7 +15,8 @@
 # limitations under the License.
 #
 
-from pybuilder.core import (use_plugin, init, Author)
+from os import environ
+from pybuilder.core import (use_plugin, init, Author, task, depends, dependents)
 
 use_plugin("python.core")
 use_plugin("python.integrationtest")
@@ -24,6 +25,7 @@ use_plugin("python.coverage")
 use_plugin("python.distutils")
 use_plugin("python.pycharm")
 use_plugin("python.coveralls")
+use_plugin("python.install_dependencies")
 use_plugin("copy_resources")
 use_plugin("filter_resources")
 
@@ -46,9 +48,22 @@ requires_python = ">=3.7"
 default_task = ["analyze", "publish"]
 
 
+@init(environments="ci")
+def init_ci_dependencies(project):
+    project.build_depends_on("setuptools", environ["SETUPTOOLS_VER"])
+    project.build_depends_on("pip", environ["PIP_VER"])
+    default_task.append("install_ci_dependencies")
+
+
+@task
+@depends("install_dependencies")
+@dependents("compile_sources")
+def install_ci_dependencies(project):
+    pass
+
+
 @init
 def set_properties(project):
-    project.depends_on("pip")
     project.depends_on("filelock")
 
     project.set_property("coverage_break_build", False)
@@ -83,6 +98,7 @@ def set_properties(project):
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: POSIX",
         "Operating System :: POSIX :: Linux",
