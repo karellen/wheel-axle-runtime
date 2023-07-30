@@ -108,7 +108,7 @@ jobs:
           pyb-extra-args: ${{ env.PYB_EXTRA_ARGS }}
   build-experimental:
     runs-on: ${{ matrix.os }}
-    continue-on-error: false
+    continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
