@@ -16,7 +16,10 @@
 #
 
 import os
-from os.path import exists, join as jp
+import contextlib
+import sys
+import site
+from os.path import exists, join as jp, commonpath
 from threading import RLock
 
 from wheel_axle.runtime.constants import AXLE_DONE_FILE, AXLE_LOCK_FILE
@@ -26,6 +29,37 @@ __version__ = "${dist_version}"
 _DIST_INFO = "dist-info"
 
 inter_thread_lock = RLock()
+
+
+def _run_installers(dist_info_dir):
+    # Get metadata
+    from wheel_axle.runtime._symlinks import SymlinksInstaller
+    from wheel_axle.runtime._axle import AxleFinalizer
+
+    installers = [SymlinksInstaller, AxleFinalizer]  # AxleFinalizer is always last!
+    for installer in installers:
+        installer(dist_info_dir).run()
+
+
+@contextlib.contextmanager
+def user_site_handler(pth_path):
+    if sys.flags.no_site or (not site.check_enableusersite()):
+        yield
+        return
+
+    user_site_path = site.getusersitepackages()
+    in_user_site_path = False
+    try:
+        if commonpath((user_site_path, pth_path)) == user_site_path:
+            in_user_site_path = True
+
+        if in_user_site_path:
+            current_sys_path = sys.path[:]
+            sys.path[:] = site.addsitepackages(set(sys.path))
+        yield
+    finally:
+        if in_user_site_path:
+            sys.path[:] = current_sys_path
 
 
 def finalize(pth_path):
@@ -48,13 +82,8 @@ def finalize(pth_path):
             if exists(axle_done_path):
                 return
 
-            # Get metadata
-            from wheel_axle.runtime._symlinks import SymlinksInstaller
-            from wheel_axle.runtime._axle import AxleFinalizer
-
-            installers = [SymlinksInstaller, AxleFinalizer]  # AxleFinalizer is always last!
-            for installer in installers:
-                installer(dist_info_dir).run()
+            with user_site_handler(pth_path):
+                _run_installers(dist_info_dir)
 
             # Always the last step
             try:

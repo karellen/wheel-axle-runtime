@@ -22,11 +22,14 @@ jobs:
           - '3.10'
           - '3.9'
         pip-version:
+          - '23.2'
           - '23.1'
           - '23.0'
           - '22.3'
           - '22.2'
         setuptools-version:
+          - '68.2'
+          - '68.1'
           - '68.0'
           - '67.0'
           - '66.0'
@@ -81,9 +84,12 @@ jobs:
           - '3.8'
           - '3.7'
         pip-version:
+          - '23.2'
           - '23.1'
           - '22.0'
         setuptools-version:
+          - '68.2'
+          - '68.1'
           - '68.0'
           - '67.0'
           - '66.0'
@@ -91,6 +97,11 @@ jobs:
           - '64.0'
           - '63.0'
           - '62.0'
+        exclude:
+          - python-version: '3.7'
+            setuptools-version: '68.2'
+          - python-version: '3.7'
+            setuptools-version: '68.1'
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -118,9 +129,12 @@ jobs:
         python-version:
           - '3.13-dev'
         pip-version:
+          - '23.2'
           - '23.1'
           - '23.0'
         setuptools-version:
+          - '68.2'
+          - '68.1'
           - '68.0'
           - '67.0'
     env:

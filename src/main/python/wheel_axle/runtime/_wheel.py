@@ -16,14 +16,15 @@
 #
 
 import os
+import site
+import sys
 from email.message import Message
 from email.parser import Parser
-from os.path import dirname, join as jp
+from os.path import dirname, join as jp, commonpath
 from typing import Tuple
 
 from pip._internal.exceptions import UnsupportedWheel
 from pip._internal.locations import get_scheme
-from pip._internal.utils.virtualenv import virtualenv_no_global
 from pip._vendor import pkg_resources
 from pip._vendor.pkg_resources import Distribution
 
@@ -59,7 +60,14 @@ def _get_dist(metadata_directory: str) -> Distribution:
 def get_current_scheme(dist_info_dir, dist_name, wheel_meta):
     install_dir = dirname(dist_info_dir)
 
-    scheme = get_scheme(dist_name)
+    if not sys.flags.no_site and site.check_enableusersite():
+        user_site_path = site.getusersitepackages()
+        if commonpath((install_dir, user_site_path)) == user_site_path:
+            scheme = get_scheme(dist_name, user=True)
+        else:
+            scheme = get_scheme(dist_name)
+    else:
+        scheme = get_scheme(dist_name)
 
     def check_correct_scheme(scheme, install_dir):
         if wheel_root_is_purelib(wheel_meta):
@@ -74,12 +82,6 @@ def get_current_scheme(dist_info_dir, dist_name, wheel_meta):
 
     if check_correct_scheme(scheme, install_dir):
         return scheme
-    else:
-        if not virtualenv_no_global():
-            scheme = get_scheme(dist_name, True)
-
-            if check_correct_scheme(scheme, install_dir):
-                return scheme
 
     raise RuntimeError("unable to determine current installation scheme")
 
