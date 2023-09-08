@@ -85,5 +85,5 @@ There are several security requirements and implications of having post-install 
 
 ### TODOs
 
-* Support schema detection for `home` and `prefix` installations.
+* Support schema detection for `prefix` installations.
 * Validate and verify Windows support.
