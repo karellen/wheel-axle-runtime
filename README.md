@@ -50,14 +50,19 @@ Once the distribution-specific `.pth` is executed by the Python interpreter, the
 5. Now that in-process and inter-process race conditions are excluded the post-install work can begin.
 6. Registered `installers` are run in sequence. Installers *should be* idempotent. The following installers are
    currently implemented:
-    1. *Symlinks installer* processes `.dist-info/symlinks.txt`, if any.
+    1. *LibPython installer* checks for the presence of `.dist-info/require-libpython`.
+        1. The installer determines the location of the installation: venv, user or other.
+        2. The list of all libpython library files is located from the `sys.base_exec_prefix`.
+        3. If the installation is either venv or user and the link to the libpython library doesn't exist the symlink 
+           is created.
+    2. *Symlinks installer* processes `.dist-info/symlinks.txt`, if any.
         1. Based on the location of the `.pth` file being executed the current installation `schema` and its paths are
            determined. Currently, installation into a virtual environment or user location is supported and tested.
         2. For each symlink the target path is resolved and `realpath` is used to determine the final target path.
         3. If the symlink path and symlink target path are within one of the permitted schema locations the symlink is
            created. Otherwise, an exception is raised and the processing is aborted.
         4. After all symlinks are created, the `.dist-info/RECORD` file is updated to reflect the created symlinks.
-    2. *Axle installer* finalizes the installation. This installer is always executed last.
+    3. *Axle installer* finalizes the installation. This installer is always executed last.
         1. The `.dist-info/RECORD` is updated with `.dist-info/axle.done` file record.
         2. `.dist-info/axle.done` is created.
         3. `<distribution name and version>.pth` is then removed. If the file cannot be removed it is left in place.

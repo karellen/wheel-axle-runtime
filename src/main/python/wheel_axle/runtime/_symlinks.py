@@ -162,5 +162,5 @@ class SymlinksInstaller(Installer):
         """Map archive RECORD paths to installation RECORD paths."""
         newpath = _fs_to_record_path(destfile, self.lib_dir)
         self.installed[newpath] = newpath
-        if modified:
-            self.changed.add(_fs_to_record_path(destfile))
+        # if modified:
+        #    self.changed.add(_fs_to_record_path(destfile))

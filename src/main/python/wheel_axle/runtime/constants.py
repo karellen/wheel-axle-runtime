@@ -18,3 +18,4 @@
 AXLE_DONE_FILE = "axle.done"
 AXLE_LOCK_FILE = "axle.lck"
 SYMLINKS_FILE = "symlinks.txt"
+REQUIRE_LIBPYTHON_FILE = "require-libpython"

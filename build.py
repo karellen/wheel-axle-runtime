@@ -30,7 +30,7 @@ use_plugin("copy_resources")
 use_plugin("filter_resources")
 
 name = "wheel-axle-runtime"
-version = "0.0.6.dev"
+version = "0.0.6"
 
 summary = "Axle Runtime is the runtime part of the Python Wheel enhancement library"
 authors = [Author("Karellen, Inc.", "supervisor@karellen.co")]
@@ -100,6 +100,7 @@ def set_properties(project):
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: POSIX",
         "Operating System :: POSIX :: Linux",
