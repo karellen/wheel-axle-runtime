@@ -17,71 +17,48 @@
 
 import site
 import sys
+import sysconfig
 import unittest
-from os.path import dirname, join as jp, exists, basename, islink, realpath, samefile
-from subprocess import check_call
+from os.path import join as jp, exists, basename, islink
 
 import pkg_resources
 from pip._internal.locations import get_scheme
 
+from instrumented_axle_tests import InstrumentedAxleTest
+from wheel_axle.runtime._common import PLATLIBDIR
 
-class InstrumentedAxleTest(unittest.TestCase):
+
+def is_enabled_shared():
+    enable_shared = sysconfig.get_config_var("PY_ENABLE_SHARED") or sysconfig.get_config_var("Py_ENABLE_SHARED")
+    return enable_shared and int(enable_shared)
+
+
+class RequireLibPythonAxleTest(InstrumentedAxleTest):
     def setUp(self) -> None:
-        self.test_dir = dirname(__file__)
-        self.wheel_file = jp(self.test_dir, "test_axle_1-0.0.1-py3-none-any.whl")
-        self.wheels = set()
+        super().setUp()
 
-    def tearDown(self) -> None:
-        for wheel_file in list(self.wheels):
-            try:
-                self.uninstall(wheel_file)
-            except Exception:
-                sys.excepthook(*sys.exc_info())
+        self.wheel_file = jp(self.test_dir, "test_axle_2_libpython-0.0.1-py3-none-any.whl")
 
-    def install(self, wheel_file, user=False, deps=["filelock", "pip"]):
-        check_call([sys.executable, "-m", "pip", "install", "--no-deps"] +
-                   (["--user", "--force-reinstall"] if user else []) +
-                   [wheel_file] + deps)
-        self.wheels.add(wheel_file)
+    def check_libpython_present(self, lib_dir):
+        in_venv = sys.base_exec_prefix != sys.exec_prefix
+        is_user_site = lib_dir.startswith(site.USER_SITE)
+        if in_venv or is_user_site:
+            self.assertTrue(islink(jp(lib_dir, sysconfig.get_config_var("LDLIBRARY"))))
+            self.assertTrue(islink(jp(lib_dir, sysconfig.get_config_var("INSTSONAME"))))
 
-    def uninstall(self, wheel_file):
-        check_call([sys.executable, "-m", "pip", "uninstall", "--yes", wheel_file])
-        self.wheels.remove(wheel_file)
-
-    def check_installed_contents(self, scheme):
-        package_data_link = jp(scheme.purelib, "bar", "foo.so")
-        data_link = jp(scheme.data, "lib", "foo.so")
-        data_lib = jp(scheme.data, "lib", "foo.1.so")
-
-        header1 = jp(scheme.headers, "header1.h")
-        header2 = jp(scheme.headers, "header2.h")
-
-        script1 = jp(scheme.scripts, "script1")
-        script2 = jp(scheme.scripts, "script2")
-
-        self.assertTrue(islink(package_data_link))
-        self.assertTrue(islink(data_link))
-        self.assertTrue(samefile(package_data_link, data_link))
-        self.assertEqual(realpath(package_data_link), realpath(data_lib))
-        self.assertEqual(realpath(data_link), realpath(data_lib))
-
-        self.assertTrue(islink(header2))
-        self.assertTrue(samefile(header1, header2))
-
-        self.assertTrue(islink(script2))
-        self.assertTrue(samefile(script1, script2))
-
+    @unittest.skipIf(not is_enabled_shared(), "Python isn't compiled with --enable-shared")
     def test_install_uninstall(self):
         self.install(self.wheel_file)
         self.uninstall(self.wheel_file)
 
+    @unittest.skipIf(not is_enabled_shared(), "Python isn't compiled with --enable-shared")
     def test_verify_install(self):
         self.install(self.wheel_file)
 
         ws = pkg_resources.WorkingSet()
         list(map(ws.add_entry, sys.path))
-        pkg = ws.by_key["test-axle-1"]
-        scheme = get_scheme("test-axle-1")
+        pkg = ws.by_key["test-axle-2-libpython"]
+        scheme = get_scheme("test-axle-2-libpython")
 
         prefix = scheme.purelib
         pth_file = basename(pkg.egg_info[:-len("dist-info")] + "pth")
@@ -98,11 +75,13 @@ class InstrumentedAxleTest(unittest.TestCase):
         self.assertTrue(exists(axle_done))
 
         self.check_installed_contents(scheme)
+        self.check_libpython_present(jp(scheme.data, PLATLIBDIR))
 
         self.uninstall(self.wheel_file)
 
         self.assertFalse(exists(dist_info))
 
+    @unittest.skipIf(not is_enabled_shared(), "Python isn't compiled with --enable-shared")
     @unittest.skipIf(sys.base_prefix != sys.prefix, "no user site available under virtualenv")
     def test_verify_user_install(self):
         self.install(self.wheel_file, True)
@@ -110,8 +89,8 @@ class InstrumentedAxleTest(unittest.TestCase):
         ws = pkg_resources.WorkingSet()
         list(map(ws.add_entry, sys.path))
         ws.add_entry(site.getusersitepackages())
-        pkg = ws.by_key["test-axle-1"]
-        scheme = get_scheme("test-axle-1", True)
+        pkg = ws.by_key["test-axle-2-libpython"]
+        scheme = get_scheme("test-axle-2-libpython", True)
 
         prefix = scheme.purelib
         pth_file = basename(pkg.egg_info[:-len("dist-info")] + "pth")
@@ -128,6 +107,7 @@ class InstrumentedAxleTest(unittest.TestCase):
         self.assertTrue(exists(axle_done))
 
         self.check_installed_contents(scheme)
+        self.check_libpython_present(jp(scheme.data, PLATLIBDIR))
 
         self.uninstall(self.wheel_file)
 

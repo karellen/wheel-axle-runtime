@@ -17,6 +17,7 @@
 
 import csv
 import os
+import sysconfig
 from email.message import Message
 from typing import Dict, Set, List, cast, IO
 
@@ -32,6 +33,9 @@ from pip._vendor.pkg_resources import Distribution
 from wheel_axle.runtime._wheel import get_dist_meta, get_current_scheme, wheel_root_is_purelib
 
 IO = IO
+
+LIBDIR = sysconfig.get_config_var("LIBDIR")
+PLATLIBDIR = os.path.basename(LIBDIR)
 
 
 class Installer:
@@ -99,5 +103,5 @@ class Installer:
         """Map archive RECORD paths to installation RECORD paths."""
         newpath = _fs_to_record_path(destfile, self.lib_dir)
         self.installed[srcfile] = newpath
-        if modified:
-            self.changed.add(_fs_to_record_path(destfile))
+        # if modified:
+        #    self.changed.add(_fs_to_record_path(destfile))

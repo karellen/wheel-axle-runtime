@@ -33,10 +33,11 @@ inter_thread_lock = RLock()
 
 def _run_installers(dist_info_dir):
     # Get metadata
+    from wheel_axle.runtime._libpython import LibPythonInstaller
     from wheel_axle.runtime._symlinks import SymlinksInstaller
     from wheel_axle.runtime._axle import AxleFinalizer
 
-    installers = [SymlinksInstaller, AxleFinalizer]  # AxleFinalizer is always last!
+    installers = [LibPythonInstaller, SymlinksInstaller, AxleFinalizer]  # AxleFinalizer is always last!
     for installer in installers:
         installer(dist_info_dir).run()
 
