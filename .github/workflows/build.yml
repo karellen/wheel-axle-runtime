@@ -42,22 +42,22 @@ jobs:
       exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
     secrets: inherit
     needs: [ build-ubuntu-py313, read-exclusions ]
-  build-ubuntu-py313t:
-    uses: ./.github/workflows/template.yml
-    with:
-      os: ubuntu-latest
-      python-version: '3.13t'
-      exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
-    secrets: inherit
-    needs: [ read-exclusions ]
-  build-macos-py313t:
-    uses: ./.github/workflows/template.yml
-    with:
-      os: macos-13
-      python-version: '3.13t'
-      exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
-    secrets: inherit
-    needs: [ build-ubuntu-py313t, read-exclusions ]
+#  build-ubuntu-py313t:
+#    uses: ./.github/workflows/template.yml
+#    with:
+#      os: ubuntu-latest
+#      python-version: '3.13t'
+#      exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
+#    secrets: inherit
+#    needs: [ read-exclusions ]
+#  build-macos-py313t:
+#    uses: ./.github/workflows/template.yml
+#    with:
+#      os: macos-13
+#      python-version: '3.13t'
+#      exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
+#    secrets: inherit
+#    needs: [ build-ubuntu-py313t, read-exclusions ]
   build-ubuntu-py312:
     uses: ./.github/workflows/template.yml
     with:
@@ -122,22 +122,6 @@ jobs:
       exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
     secrets: inherit
     needs: [ build-ubuntu-py39, read-exclusions ]
-  build-ubuntu-py38:
-    uses: ./.github/workflows/template.yml
-    with:
-      os: ubuntu-latest
-      python-version: '3.8'
-      exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
-    secrets: inherit
-    needs: [ read-exclusions ]
-  build-macos-py38:
-    uses: ./.github/workflows/template.yml
-    with:
-      os: macos-13
-      python-version: '3.8'
-      exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
-    secrets: inherit
-    needs: [ build-ubuntu-py38, read-exclusions ]
   build-ubuntu-py314:
     uses: ./.github/workflows/template.yml
     with:
@@ -154,33 +138,33 @@ jobs:
       exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
     secrets: inherit
     needs: [ build-ubuntu-py314, read-exclusions ]
-  build-ubuntu-py314t:
-    uses: ./.github/workflows/template.yml
-    with:
-      os: ubuntu-latest
-      python-version: '3.14t-dev'
-      exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
-    secrets: inherit
-    needs: [ read-exclusions ]
-  build-macos-py314t:
-    uses: ./.github/workflows/template.yml
-    with:
-      os: macos-13
-      python-version: '3.14t-dev'
-      exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
-    secrets: inherit
-    needs: [ build-ubuntu-py314t, read-exclusions ]
+#  build-ubuntu-py314t:
+#    uses: ./.github/workflows/template.yml
+#    with:
+#      os: ubuntu-latest
+#      python-version: '3.14t-dev'
+#      exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
+#    secrets: inherit
+#    needs: [ read-exclusions ]
+#  build-macos-py314t:
+#    uses: ./.github/workflows/template.yml
+#    with:
+#      os: macos-13
+#      python-version: '3.14t-dev'
+#      exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
+#    secrets: inherit
+#    needs: [ build-ubuntu-py314t, read-exclusions ]
   build-summary:
     if: success() || failure()
     runs-on: ubuntu-latest
     name: Build Summary
     needs:
-      - build-ubuntu-py314t
-      - build-macos-py314t
+#      - build-ubuntu-py314t
+#      - build-macos-py314t
       - build-ubuntu-py314
       - build-macos-py314
-      - build-ubuntu-py313t
-      - build-macos-py313t
+#      - build-ubuntu-py313t
+#      - build-macos-py313t
       - build-ubuntu-py313
       - build-macos-py313
       - build-ubuntu-py312
@@ -191,8 +175,6 @@ jobs:
       - build-macos-py310
       - build-ubuntu-py39
       - build-macos-py39
-      - build-ubuntu-py38
-      - build-macos-py38
     steps:
       - name: Check build matrix status
         if: |
@@ -205,7 +187,5 @@ jobs:
           needs.build-ubuntu-py310.result != 'success' ||
           needs.build-macos-py310.result != 'success' ||
           needs.build-ubuntu-py39.result != 'success' ||
-          needs.build-macos-py39.result != 'success' ||
-          needs.build-ubuntu-py38.result != 'success' ||
-          needs.build-macos-py38.result != 'success'
+          needs.build-macos-py39.result != 'success'
         run: exit 1
