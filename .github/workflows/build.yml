@@ -22,14 +22,29 @@ jobs:
             cat ./.github/exclusions.json
             echo -e '\nEOF'
           }  >> "$GITHUB_OUTPUT"
-
+  build-ubuntu-py314:
+    uses: ./.github/workflows/template.yml
+    with:
+      os: ubuntu-latest
+      python-version: '3.14-dev'
+      exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
+    secrets: inherit
+    needs: [ read-exclusions ]
+  build-macos-py314:
+    uses: ./.github/workflows/template.yml
+    with:
+      os: macos-13
+      python-version: '3.14-dev'
+      exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
+    secrets: inherit
+    needs: [ build-ubuntu-py314, read-exclusions ]
   build-ubuntu-py313:
     uses: ./.github/workflows/template.yml
     with:
       os: ubuntu-latest
       python-version: '3.13'
       deploy: ${{ github.event_name == 'push' }}
-      deploy-pip: '25.1'
+      deploy-pip: '25.2'
       deploy-setuptools: '80.9'
       exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
     secrets: inherit
@@ -122,22 +137,6 @@ jobs:
       exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
     secrets: inherit
     needs: [ build-ubuntu-py39, read-exclusions ]
-  build-ubuntu-py314:
-    uses: ./.github/workflows/template.yml
-    with:
-      os: ubuntu-latest
-      python-version: '3.14-dev'
-      exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
-    secrets: inherit
-    needs: [ read-exclusions ]
-  build-macos-py314:
-    uses: ./.github/workflows/template.yml
-    with:
-      os: macos-13
-      python-version: '3.14-dev'
-      exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
-    secrets: inherit
-    needs: [ build-ubuntu-py314, read-exclusions ]
 #  build-ubuntu-py314t:
 #    uses: ./.github/workflows/template.yml
 #    with:
@@ -178,6 +177,8 @@ jobs:
     steps:
       - name: Check build matrix status
         if: |
+          needs.build-ubuntu-py314.result != 'success' ||
+          needs.build-macos-py314.result != 'success' ||
           needs.build-ubuntu-py313.result != 'success' ||
           needs.build-macos-py313.result != 'success' ||
           needs.build-ubuntu-py312.result != 'success' ||
