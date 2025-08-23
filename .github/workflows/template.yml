@@ -38,6 +38,7 @@ jobs:
         python-version:
           - ${{ inputs.python-version }}
         pip-version:
+          - '25.2'
           - '25.1'
           - '25.0'
           - '24.3'
@@ -75,7 +76,7 @@ jobs:
       - uses: actions/checkout@v4
       - shell: bash
         run: |
-          echo "PYB_EXTRA_ARGS=--no-venvs" >> $GITHUB_ENV
+          echo "PYB_EXTRA_ARGS=--no-venvs -E ci" >> $GITHUB_ENV
           echo "SETUPTOOLS_VER=~=${{matrix.setuptools-version}}" >> $GITHUB_ENV
           echo "PIP_VER=~=${{matrix.pip-version}}" >> $GITHUB_ENV
       - shell: bash
@@ -84,10 +85,11 @@ jobs:
           contains(env.DEPLOY_PIP, matrix.pip-version) &&
           contains(env.DEPLOY_SETUPTOOLS, matrix.setuptools-version)
         run: |
-          echo "PYB_EXTRA_ARGS=+upload --no-venvs" >> $GITHUB_ENV
+          echo "PYB_EXTRA_ARGS=+upload -E release --no-venvs" >> $GITHUB_ENV
       - uses: pybuilder/build@master
         with:
           checkout: false
           with-venv: false
           python-version: ${{ matrix.python-version }}
+          pyb-args: "-vX"
           pyb-extra-args: ${{ env.PYB_EXTRA_ARGS }}
