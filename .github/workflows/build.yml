@@ -12,7 +12,7 @@ jobs:
     outputs:
       BUILD_EXCLUSIONS: ${{ steps.read-exclusions-step.outputs.BUILD_EXCLUSIONS }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - id: read-exclusions-step
         run: |
           set -xeEu
@@ -22,6 +22,7 @@ jobs:
             cat ./.github/exclusions.json
             echo -e '\nEOF'
           }  >> "$GITHUB_OUTPUT"
+
   build-ubuntu-py314:
     uses: ./.github/workflows/template.yml
     with:
