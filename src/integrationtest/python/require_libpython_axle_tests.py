@@ -25,7 +25,6 @@ import pkg_resources
 from pip._internal.locations import get_scheme
 
 from instrumented_axle_tests import InstrumentedAxleTest
-from wheel_axle.runtime._common import PLATLIBDIR
 
 
 def is_enabled_shared():
@@ -75,7 +74,7 @@ class RequireLibPythonAxleTest(InstrumentedAxleTest):
         self.assertTrue(exists(axle_done))
 
         self.check_installed_contents(scheme)
-        self.check_libpython_present(jp(scheme.data, PLATLIBDIR))
+        self.check_libpython_present(jp(scheme.data, sys.platlibdir))
 
         self.uninstall(self.wheel_file)
 
@@ -107,7 +106,7 @@ class RequireLibPythonAxleTest(InstrumentedAxleTest):
         self.assertTrue(exists(axle_done))
 
         self.check_installed_contents(scheme)
-        self.check_libpython_present(jp(scheme.data, PLATLIBDIR))
+        self.check_libpython_present(jp(scheme.data, sys.platlibdir))
 
         self.uninstall(self.wheel_file)
 

@@ -19,10 +19,11 @@ import os
 import site
 import sys
 import sysconfig
+import pathlib
 
 from pip._internal.exceptions import InstallationError
 
-from wheel_axle.runtime._common import Installer, PLATLIBDIR, LIBDIR
+from wheel_axle.runtime._common import Installer
 from wheel_axle.runtime.constants import REQUIRE_LIBPYTHON_FILE
 
 
@@ -50,7 +51,7 @@ class LibPythonInstaller(Installer):
         is_user_site = self.lib_dir.startswith(site.USER_SITE)
 
         # Find libpython library names and locations
-        shared_library_path = LIBDIR
+        shared_library_path = sysconfig.get_config_var("LIBDIR")
         all_ld_library_names = list(set(n for n in (sysconfig.get_config_var("LDLIBRARY"),
                                                     sysconfig.get_config_var("INSTSONAME")) if n))
 
@@ -77,15 +78,29 @@ class LibPythonInstaller(Installer):
                     message.format(self.dist_meta.project_name, p)
                 )
 
-        lib_path = None
-        if is_user_site:
-            lib_path = os.path.join(site.USER_BASE, PLATLIBDIR)
-        elif in_venv:
-            lib_path = os.path.join(sys.exec_prefix, PLATLIBDIR)
+        def compute_arch_lib_dir(schema_name):
+            paths = sysconfig.get_paths(schema_name)
+            data = pathlib.Path(paths["data"])
+            platlib = pathlib.Path(paths["platlib"])
+            return platlib.relative_to(data).parts[0]
 
-        # We're neither in a venv, nor in a user site, i.e. it's an install into Python proper
-        if not lib_path:
+        platlibdir = sys.platlibdir
+
+        if is_user_site:
+            target_platlibdir = compute_arch_lib_dir("posix_user")
+            lib_path = os.path.join(site.USER_BASE, target_platlibdir)
+            platlib_path = os.path.join(site.USER_BASE, platlibdir)
+        elif in_venv:
+            target_platlibdir = compute_arch_lib_dir("venv")
+            lib_path = os.path.join(sys.exec_prefix, target_platlibdir)
+            platlib_path = os.path.join(sys.exec_prefix, platlibdir)
+        else:
+            # We're neither in a venv, nor in a user site, i.e. it's an install into Python proper
             return
+
+        # Workaround for python/cpython#143989
+        if lib_path != platlib_path and not os.path.exists(platlib_path):
+            os.symlink(os.path.basename(lib_path), platlib_path, False)
 
         all_ld_library_links = list(os.path.join(lib_path, p) for p in all_ld_library_names)
 
