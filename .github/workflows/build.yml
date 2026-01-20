@@ -197,9 +197,11 @@ jobs:
       - name: Check build matrix status
         if: |
           needs.build-ubuntu-py314.result != 'success' ||
-          needs.build-macos-py314.result != 'success' ||
+          needs.build-macos-intel-py314.result != 'success' ||
+          needs.build-macos-arm-py314.result != 'success' ||
           needs.build-ubuntu-py313.result != 'success' ||
-          needs.build-macos-py313.result != 'success' ||
+          needs.build-macos-intel-py313.result != 'success' ||
+          needs.build-macos-arm-py313.result != 'success' ||
           needs.build-ubuntu-py312.result != 'success' ||
           needs.build-macos-py312.result != 'success' ||
           needs.build-ubuntu-py311.result != 'success' ||
