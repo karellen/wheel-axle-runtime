@@ -26,6 +26,11 @@ from pip._internal.exceptions import InstallationError
 from wheel_axle.runtime._common import Installer
 from wheel_axle.runtime.constants import REQUIRE_LIBPYTHON_FILE
 
+try:
+    from sysconfig import get_default_scheme
+except ImportError:
+    from sysconfig import _get_default_scheme as get_default_scheme
+
 
 class LibPythonInstaller(Installer):
     def install(self) -> None:
@@ -93,7 +98,7 @@ class LibPythonInstaller(Installer):
         elif in_venv:
             target_platlibdir = compute_arch_lib_dir(
                 "venv" if "venv" in sysconfig.get_scheme_names() else
-                sysconfig.get_default_scheme())
+                get_default_scheme())
             lib_path = os.path.join(sys.exec_prefix, target_platlibdir)
             platlib_path = os.path.join(sys.exec_prefix, platlibdir)
         else:
