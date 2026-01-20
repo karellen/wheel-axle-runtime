@@ -91,7 +91,9 @@ class LibPythonInstaller(Installer):
             lib_path = os.path.join(site.USER_BASE, target_platlibdir)
             platlib_path = os.path.join(site.USER_BASE, platlibdir)
         elif in_venv:
-            target_platlibdir = compute_arch_lib_dir("venv")
+            target_platlibdir = compute_arch_lib_dir(
+                "venv" if "venv" in sysconfig.get_scheme_names() else
+                sysconfig.get_default_scheme())
             lib_path = os.path.join(sys.exec_prefix, target_platlibdir)
             platlib_path = os.path.join(sys.exec_prefix, platlibdir)
         else:
