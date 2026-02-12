@@ -60,9 +60,10 @@ class RequireLibPythonAxleTest(InstrumentedAxleTest):
         scheme = get_scheme("test-axle-2-libpython")
 
         prefix = scheme.purelib
-        pth_file = basename(pkg.egg_info[:-len("dist-info")] + "pth")
+        egg_info = str(pkg._path_dist._path)
+        pth_file = basename(egg_info[:-len("dist-info")] + "pth")
         pth_path = jp(prefix, pth_file)
-        dist_info = jp(prefix, basename(pkg.egg_info))
+        dist_info = jp(prefix, basename(egg_info))
         axle_done = jp(dist_info, "axle.done")
 
         self.assertTrue(exists(pth_path))
@@ -92,9 +93,10 @@ class RequireLibPythonAxleTest(InstrumentedAxleTest):
         scheme = get_scheme("test-axle-2-libpython", True)
 
         prefix = scheme.purelib
-        pth_file = basename(pkg.egg_info[:-len("dist-info")] + "pth")
+        egg_info = str(pkg._path_dist._path)
+        pth_file = basename(egg_info[:-len("dist-info")] + "pth")
         pth_path = jp(prefix, pth_file)
-        dist_info = jp(prefix, basename(pkg.egg_info))
+        dist_info = jp(prefix, basename(egg_info))
         axle_done = jp(dist_info, "axle.done")
 
         self.assertTrue(exists(pth_path))
