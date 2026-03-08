@@ -6,6 +6,8 @@ on:
   push:
     branches:
       - master
+permissions:
+  contents: write
 jobs:
   read-exclusions:
     runs-on: ubuntu-latest
