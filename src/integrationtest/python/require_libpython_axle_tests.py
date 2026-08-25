@@ -15,11 +15,13 @@
 # limitations under the License.
 #
 
+import os
 import site
 import sys
 import sysconfig
 import unittest
 from os.path import join as jp, exists, basename, islink
+from subprocess import check_call
 
 import pkg_resources
 from pip._internal.locations import get_scheme
@@ -33,6 +35,8 @@ def is_enabled_shared():
 
 
 class RequireLibPythonAxleTest(InstrumentedAxleTest):
+    dist_key = "test-axle-2-libpython"
+
     def setUp(self) -> None:
         super().setUp()
 
@@ -80,6 +84,33 @@ class RequireLibPythonAxleTest(InstrumentedAxleTest):
         self.uninstall(self.wheel_file)
 
         self.assertFalse(exists(dist_info))
+
+    @unittest.skipIf(not is_enabled_shared(), "Python isn't compiled with --enable-shared")
+    @unittest.skipIf(sys.version_info < (3, 15), "PEP 829 `.start` files require Python 3.15+")
+    def test_verify_startup_entry_point_install(self):
+        self.install(self.wheel_file)
+
+        scheme, dist_path = self.locate_install()
+        pth_path = dist_path + ".pth"
+        start_path = dist_path + ".start"
+        axle_done = jp(dist_path + ".dist-info", "axle.done")
+
+        self.assertTrue(exists(pth_path))
+        self.assertTrue(exists(start_path))
+        self.assertFalse(exists(axle_done))
+
+        # Leave the `.start` entry point as the only thing able to finalize the install
+        os.unlink(pth_path)
+
+        check_call([sys.executable, "-c", "pass"])
+
+        self.assertFalse(exists(start_path))
+        self.assertTrue(exists(axle_done))
+
+        self.check_installed_contents(scheme)
+        self.check_libpython_present(jp(scheme.data, sys.platlibdir))
+
+        self.uninstall(self.wheel_file)
 
     @unittest.skipIf(not is_enabled_shared(), "Python isn't compiled with --enable-shared")
     @unittest.skipIf(sys.base_prefix != sys.prefix, "no user site available under virtualenv")
