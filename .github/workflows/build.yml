@@ -164,22 +164,6 @@ jobs:
       exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
     secrets: inherit
     needs: [ build-ubuntu-py310, read-exclusions ]
-  build-ubuntu-py39:
-    uses: ./.github/workflows/template.yml
-    with:
-      os: ubuntu-latest
-      python-version: '3.9'
-      exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
-    secrets: inherit
-    needs: [ read-exclusions ]
-  build-macos-py39:
-    uses: ./.github/workflows/template.yml
-    with:
-      os: macos-15-intel
-      python-version: '3.9'
-      exclude: ${{ needs.read-exclusions.outputs.BUILD_EXCLUSIONS }}
-    secrets: inherit
-    needs: [ build-ubuntu-py39, read-exclusions ]
 #  build-ubuntu-py314t:
 #    uses: ./.github/workflows/template.yml
 #    with:
@@ -220,8 +204,6 @@ jobs:
       - build-macos-py311
       - build-ubuntu-py310
       - build-macos-py310
-      - build-ubuntu-py39
-      - build-macos-py39
     steps:
       - name: Check build matrix status
         if: |
@@ -239,7 +221,5 @@ jobs:
           needs.build-ubuntu-py311.result != 'success' ||
           needs.build-macos-py311.result != 'success' ||
           needs.build-ubuntu-py310.result != 'success' ||
-          needs.build-macos-py310.result != 'success' ||
-          needs.build-ubuntu-py39.result != 'success' ||
-          needs.build-macos-py39.result != 'success'
+          needs.build-macos-py310.result != 'success'
         run: exit 1

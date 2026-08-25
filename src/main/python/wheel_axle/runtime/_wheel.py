@@ -21,7 +21,6 @@ import sys
 from email.message import Message
 from email.parser import Parser
 from os.path import dirname, join as jp, commonpath
-from typing import Tuple
 
 from pip._internal.exceptions import UnsupportedWheel
 from pip._internal.locations import get_scheme
@@ -90,7 +89,7 @@ def wheel_root_is_purelib(wheel_meta: Message) -> bool:
     return wheel_meta.get("Root-Is-Purelib", "").lower() == "true"
 
 
-def get_dist_meta(dist_info_dir: str) -> Tuple[Distribution, Message]:
+def get_dist_meta(dist_info_dir: str) -> tuple[Distribution, Message]:
     return _get_dist(dist_info_dir), wheel_metadata(dist_info_dir)
 
 

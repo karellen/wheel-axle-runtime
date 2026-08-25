@@ -17,7 +17,6 @@
 
 import csv
 import os
-from typing import Tuple, List
 
 from pip._internal.models.scheme import SCHEME_KEYS
 from pip._internal.operations.install.wheel import (
@@ -30,8 +29,8 @@ from pip._internal.operations.install.wheel import (
 from wheel_axle.runtime._common import Installer
 from wheel_axle.runtime.constants import SYMLINKS_FILE
 
-Symlink = Tuple[str, str, bool]
-Symlinks = List[Symlink]
+Symlink = tuple[str, str, bool]
+Symlinks = list[Symlink]
 
 
 def write_symlinks_file(symlinks_file: str, symlinks: Symlinks) -> None:
@@ -93,13 +92,13 @@ class SymlinksInstaller(Installer):
                                ",".join(real_symlinking_paths))
             )
 
-        def make_root_scheme_path(dest: str, record_path: str) -> Tuple[str, str]:
+        def make_root_scheme_path(dest: str, record_path: str) -> tuple[str, str]:
             normed_path = os.path.normpath(record_path)
             dest_path = os.path.join(dest, normed_path)
             assert_no_path_traversal(dest, dest_path)
             return dest, dest_path
 
-        def make_data_scheme_path(record_path: str) -> Tuple[str, str]:
+        def make_data_scheme_path(record_path: str) -> tuple[str, str]:
             normed_path = os.path.normpath(record_path)
             try:
                 _, scheme_key, dest_subpath = normed_path.split(os.path.sep, 2)
