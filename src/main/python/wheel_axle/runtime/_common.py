@@ -18,7 +18,7 @@
 import csv
 import os
 from email.message import Message
-from typing import Dict, Set, List, cast, IO
+from typing import cast, IO
 
 from pip._internal.models.scheme import Scheme
 from pip._internal.operations.install.wheel import (
@@ -38,9 +38,9 @@ class Installer:
     def __init__(self, dist_info_dir: str):
         self.dist_info_dir = dist_info_dir
 
-        self.installed: Dict[str, str] = {}
-        self.changed: Set[str] = set()
-        self.generated: List[str] = []
+        self.installed: dict[str, str] = {}
+        self.changed: set[str] = set()
+        self.generated: list[str] = []
 
         self.dist_meta: Distribution = None
         self.wheel_meta: Message = None

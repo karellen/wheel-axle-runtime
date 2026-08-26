@@ -19,3 +19,16 @@ AXLE_DONE_FILE = "axle.done"
 AXLE_LOCK_FILE = "axle.lck"
 SYMLINKS_FILE = "symlinks.txt"
 REQUIRE_LIBPYTHON_FILE = "require-libpython"
+
+DIST_INFO_SUFFIX = ".dist-info"
+PTH_SUFFIX = ".pth"
+START_SUFFIX = ".start"
+
+# The PEP 829 startup entry point referenced by the `.start` file of every Axle
+# distribution, honored by `site` starting with Python 3.15
+START_ENTRY_POINT = "wheel_axle.runtime:start"
+
+# The very same entry point spelled as a `.pth` `import` line, which covers the Python
+# versions predating PEP 829. Deriving it from `START_ENTRY_POINT` is what keeps the two
+# startup files calling the same thing, as the `site` documentation prescribes.
+START_PTH_LINE = "import {0}; {0}.{1}();".format(*START_ENTRY_POINT.split(":"))

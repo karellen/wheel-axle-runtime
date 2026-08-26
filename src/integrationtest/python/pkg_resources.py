@@ -1,6 +1,5 @@
-from __future__ import annotations
-
 import dataclasses
+import importlib.metadata as meta
 import re
 import sys
 import types
@@ -9,11 +8,6 @@ from importlib.metadata import PathDistribution
 
 from packaging.requirements import Requirement
 from packaging.specifiers import SpecifierSet, InvalidSpecifier
-
-try:
-    import importlib.metadata as meta
-except ImportError:
-    import importlib_metadata as meta
 
 __all__ = ["SpecifierSet", "InvalidSpecifier"]
 

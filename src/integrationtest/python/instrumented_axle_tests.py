@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import os
 import site
 import sys
 import unittest
@@ -26,6 +27,8 @@ from pip._internal.locations import get_scheme
 
 
 class InstrumentedAxleTest(unittest.TestCase):
+    dist_key = "test-axle-1"
+
     def setUp(self) -> None:
         self.test_dir = dirname(__file__)
         self.wheel_file = jp(self.test_dir, "test_axle_1-0.0.1-py3-none-any.whl")
@@ -47,6 +50,17 @@ class InstrumentedAxleTest(unittest.TestCase):
     def uninstall(self, wheel_file):
         check_call([sys.executable, "-m", "pip", "uninstall", "--yes", wheel_file])
         self.wheels.remove(wheel_file)
+
+    def locate_install(self, user=False):
+        """Returns the scheme and the `<site dir>/<name>-<version>` path of the installation."""
+        ws = pkg_resources.WorkingSet()
+        list(map(ws.add_entry, sys.path))
+        if user:
+            ws.add_entry(site.getusersitepackages())
+
+        scheme = get_scheme(self.dist_key, user)
+        dist_info = basename(str(ws.by_key[self.dist_key]._path_dist._path))
+        return scheme, jp(scheme.purelib, dist_info[:-len(".dist-info")])
 
     def check_installed_contents(self, scheme):
         package_data_link = jp(scheme.purelib, "bar", "foo.so")
@@ -103,6 +117,31 @@ class InstrumentedAxleTest(unittest.TestCase):
         self.uninstall(self.wheel_file)
 
         self.assertFalse(exists(dist_info))
+
+    @unittest.skipIf(sys.version_info < (3, 15), "PEP 829 `.start` files require Python 3.15+")
+    def test_verify_startup_entry_point_install(self):
+        self.install(self.wheel_file)
+
+        scheme, dist_path = self.locate_install()
+        pth_path = dist_path + ".pth"
+        start_path = dist_path + ".start"
+        axle_done = jp(dist_path + ".dist-info", "axle.done")
+
+        self.assertTrue(exists(pth_path))
+        self.assertTrue(exists(start_path))
+        self.assertFalse(exists(axle_done))
+
+        # Leave the `.start` entry point as the only thing able to finalize the install
+        os.unlink(pth_path)
+
+        check_call([sys.executable, "-c", "pass"])
+
+        self.assertFalse(exists(start_path))
+        self.assertTrue(exists(axle_done))
+
+        self.check_installed_contents(scheme)
+
+        self.uninstall(self.wheel_file)
 
     @unittest.skipIf(sys.base_prefix != sys.prefix, "no user site available under virtualenv")
     def test_verify_user_install(self):
