@@ -26,10 +26,7 @@ from pip._internal.exceptions import InstallationError
 from wheel_axle.runtime._common import Installer
 from wheel_axle.runtime.constants import REQUIRE_LIBPYTHON_FILE
 
-try:
-    from sysconfig import get_default_scheme
-except ImportError:
-    from sysconfig import _get_default_scheme as get_default_scheme
+from sysconfig import get_default_scheme
 
 
 class LibPythonInstaller(Installer):
